@@ -1,0 +1,46 @@
+{
+  "_readme": [
+    "复制这个文件为 <app>.json 就多了一个目标，不需要改任何脚本。",
+    "文件名以 _ 开头的会被忽略。",
+    "regions 的坐标都是【客户区】坐标：x/y 为负表示从右/下边缘算起，",
+    "w/h 为负表示右/下边缘的位置（即 x 到 W+w 之间）。",
+    "xRail:true 表示 x = 左侧轨道宽（layout.railWidth 或 -RailWidth）；",
+    "wRest:true 表示 w = W - x；hRest:true 表示 h = H - y。",
+    "拿不到布局时先跑：pct.ps1 -Action list 找窗口，再 shot -Region full 读一张整窗图量坐标。"
+  ],
+
+  "name": "myapp",
+  "app": "显示给用户看的名字",
+  "notes": "这个应用的坑（自绘？Electron？需要点一下输入框才有焦点？发送是回车还是 Ctrl+Enter？）",
+
+  "match": {
+    "titleContains": "窗口标题里必然出现的子串",
+    "windowTitleAlias": ["别名1", "别名2"],
+    "processNames": ["进程名.exe 去掉扩展名"],
+    "windowClassPattern": "Qt* 或 Chrome_WidgetWin_1 之类，可用通配符"
+  },
+
+  "layout": {
+    "railWidth": 0
+  },
+
+  "regions": {
+    "rail":     { "x": 0, "y": 0, "w": 0, "h": 0, "note": "会话列表" },
+    "header":   { "xRail": true, "y": 0, "wRest": true, "h": 40, "note": "会话标题，用来确认聊天对象" },
+    "pane":     { "xRail": true, "y": 40, "wRest": true, "h": -200, "note": "整段会话；要避开闪烁光标和「正在输入」" },
+    "tail":     { "xRail": true, "y": 120, "wRest": true, "h": -300, "note": "会话下半段，省 token 用" },
+    "io":       { "xRail": true, "y": -280, "wRest": true, "h": -5, "note": "最新一条 + 输入框" },
+    "composer": { "xRail": true, "y": -190, "wRest": true, "h": -5, "note": "输入框 + 工具栏（有闪烁光标，别做哈希比对）" }
+  },
+
+  "send": {
+    "keys": "enter",
+    "clickComposer": null
+  },
+
+  "switch": {
+    "keys": "^f",
+    "settleMs": 500,
+    "note": "打开会话搜索的快捷键。没有搜索就删掉 switch，只能手动点 rail。"
+  }
+}

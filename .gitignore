@@ -1,0 +1,29 @@
+# ── 私有数据根：真实语料、联系人画像、复盘留痕、API key 一律不进版本库（ADR-0025）──
+# 程序首次运行会由 config.ensure_dirs() 自建空目录；别人 clone 下来从空档案开始。
+# 换机器时这个目录要自己带走——它不随仓库迁移。
+关系档案/
+
+# ── Python ──
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# ── 打包产物 ──
+build/
+dist/
+*.spec
+*.exe
+
+# ── 界面预览图（`python tools\ui_preview.py` 生成，随时可重跑） ──
+_preview/
+
+# ── 打包时生成的图标（由 goutou_chat/ui/icon.py 现画，不入库） ──
+app/assets/
+
+# ── 迁移与回滚材料（含旧仓库归档，绝不入库） ──
+_backup/
+
+# ── 上游安装包（体积大、可重装） ──
+wechat-tool/*.exe

@@ -1,0 +1,44 @@
+{
+  "name": "qq",
+  "app": "QQ (Windows NT 版) 独立聊天窗口",
+  "notes": "Chromium 内核（Chrome_WidgetWin_1），不是自绘，PrintWindow 一样准。关键区别：QQ 是【每个聊天一个独立顶层窗口】，标题就是联系人名（如「示例昵称123456789」），所以不能用固定标题匹配 —— 用 titleRegex 抓标题里的 QQ 号。主面板标题固定是「QQ」，会被正则排除掉。",
+
+  "match": {
+    "processNames": ["QQ"],
+    "windowClassPattern": "Chrome_WidgetWin_1",
+    "titleRegex": "^(?!QQ$).+$",
+    "windowTitleAlias": ["QQ"],
+    "titleRegexNote": "老规则是 \\d{6,}（要求标题里带 QQ 号），实测会漏 —— 2026-09-20 联系人的聊天窗标题只有联系人名，没有号，于是 -Target qq 找不到它。现在改成『排除 QQ 主面板』：主面板标题固定是 QQ，聊天窗标题是联系人名（有时带号、有时不带）。⚠️ 若同时开着多个聊天窗，-Target qq 会歧义：读图无所谓，但 send 会直接拒绝并列出候选（防发错人），此时请用 -Target <名字> 或 -Target <hwnd>。"
+  },
+
+  "layout": {
+    "railWidth": 0,
+    "railWidthNote": "QQ 独立聊天窗口没有会话列表（列表在 QQ 主面板里），所以 railWidth=0、没有 rail 区域。要换聊天对象，得去 QQ 主面板点人，或者用 -Action list 找另一个聊天窗口的 hwnd。"
+  },
+
+  "regions": {
+    "header":   { "x": 0, "y": 48, "wRest": true, "h": 42,
+                  "note": "标题栏：联系人名 + QQ号 + 通话/视频/远程/更多图标。**切换对象后必须读它核对。**" },
+
+    "pane":     { "x": 0, "y": 92, "wRest": true, "h": -151,
+                  "note": "聊天记录区（到 y=480，输入区之上）。" },
+
+    "tail":     { "x": 0, "y": 240, "wRest": true, "h": -151,
+                  "note": "聊天记录下半段，读最新几条优先用它。" },
+
+    "io":       { "x": 0, "y": -200, "wRest": true, "h": 0,
+                  "note": "最新几条 + 输入区，一次看清上下文和发出去没有。" },
+
+    "composer": { "x": 0, "y": -148, "wRest": true, "h": 0,
+                  "note": "输入区（含顶部工具栏）＋底部「关闭 / 发送」按钮。⚠️ 「关闭」和「发送」紧挨着，别点错。" }
+  },
+
+  "send": {
+    "keys": "enter",
+    "clickComposer": [400, 555],
+    "note": "QQ 默认回车发送。先点一下输入区中心 (400,555) 拿焦点再粘贴——实测 QQ 不像微信那样在窗口激活后自动保留输入焦点。点的是输入区空白处，**千万不要点到右下角的「关闭」按钮**（它在 (650,606)，发送在 (737,606)）。"
+  },
+
+  "switch": null,
+  "switchNote": "QQ 独立窗口没有会话搜索。要换人只能操作 QQ 主面板，或用 -Action list 找到目标聊天窗口的 hwnd 直接 -Target <hwnd>。"
+}

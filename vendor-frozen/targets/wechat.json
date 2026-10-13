@@ -1,0 +1,57 @@
+{
+  "name": "wechat",
+  "app": "微信桌面版 / WeChat for Windows",
+  "notes": "Qt 自绘窗口，UI Automation 树是空的（只有一个 MMUIRenderSubWindowHW），所以只能截图。进程名是 Weixin，常有 6 个同名进程，只有 MainWindowHandle 非 0 的那个是主窗口。",
+
+  "match": {
+    "titleContains": "微信",
+    "windowTitleAlias": ["WeChat", "Weixin"],
+    "processNames": ["Weixin", "WeChat"],
+    "windowClassPattern": "Qt*"
+  },
+
+  "layout": {
+    "railWidth": 314,
+    "railWidthNote": "左侧头像条 + 会话列表的总宽。换 DPI/缩放后重新量一次，或用 -RailWidth 覆盖。",
+    "rowGeometry": {
+      "firstRowTop": 85,
+      "rowHeight": 60,
+      "clickX": 160,
+      "note": "会话行的几何（客户区坐标）：第一行顶部 y=85，每行 60px 高，点击 x 取 160 落在行内。2026-09-20 实测标定：点 y=130→第1行、y=171→第2行、y=213→第3行，与 85+60*(n-1)+30 完全吻合。⚠️ 微信只要收到新消息就会重排列表，所以任何比最近一次 rail 截图更旧的行号都是过期的——每次点击前必须重新读一次 rail。"
+    }
+  },
+
+  "regions": {
+    "rail":     { "x": 0, "y": 0, "w": 314, "h": 0,
+                  "note": "左侧轨道：头像条 + 会话列表，含未读红点和最后一条预览。用来一次性看全部会话。" },
+
+    "header":   { "xRail": true, "y": 40, "wRest": true, "h": 42,
+                  "note": "当前会话标题栏（联系人名 + 通话/更多图标）。切换会话后必须先读它确认对象。注意这里会出现「对方正在输入…」。" },
+
+    "pane":     { "xRail": true, "y": 84, "wRest": true, "h": -195,
+                  "note": "整段会话内容。y 从 84 起是为了避开标题栏的「正在输入」提示，否则等待新消息会误报。" },
+
+    "tail":     { "xRail": true, "y": 130, "wRest": true, "h": -285,
+                  "note": "会话下半段，读最新几条时优先用它，省 token。" },
+
+    "io":       { "xRail": true, "y": -290, "wRest": true, "h": -5,
+                  "note": "最新一条 + 输入框，一次看清「对方说了啥 + 我这边发出去没有」。" },
+
+    "composer": { "xRail": true, "y": -190, "wRest": true, "h": -5,
+                  "note": "输入框 + 底部工具栏。里面有闪烁光标，只能用来读图，不要拿它做哈希比对。" }
+  },
+
+  "send": {
+    "keys": "enter",
+    "clickComposer": [597, -123],
+    "clickComposerNote": "负坐标 = 从右下边缘算，语义同 regions。-123 即「距客户区底部 123px」= 输入框文字区中心。⚠️ 2026-09-28 修正：原值 [597,490] 是按客户区高 613 标定的，而微信 4.1 打开时客户区只有 545 —— 那个点会落到输入框下方的工具栏（表情按钮）上，表现为 sent=False 且字根本没进输入框。Click-Client 现已支持负坐标，窗口高度变化不会再失准。",
+    "note": "微信回车即发送。⚠️ 早期以为「微信不用点输入框」，2026-09-20 实测推翻：**用会话搜索框 switch 过之后输入框会丢焦点**（现象：sent=False 且输入框是空的，字哪儿都没进去）。现在统一先点输入区中心 (597,490) 再粘贴——这个点落在输入框空白处，远离右下角 (836,577) 的「发送」按钮。"
+  },
+
+  "switch": {
+    "openSearchClick": [160, 56],
+    "settleMs": 700,
+    "resultSettleMs": 1200,
+    "note": "✅ 2026-09-20 实测通过（用列表搜索框这条路）。微信 4.x 的 Ctrl+F 打开的是【搜一搜】联网面板（AI搜索/视频/文章标签页），回车只会去搜网页、永远切不了会话。真正的会话搜索是会话列表顶部那个「搜索」框，客户区约 (160,56)：点它 → 粘贴名字 → 等结果 → 回车。客户区宽度不变（879x613），不会像搜一搜那样撑宽窗口。切换后务必读 header 图核对，并注意 send 要先点输入框。"
+  }
+}
