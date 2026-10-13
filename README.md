@@ -1,4 +1,4 @@
-# 狗头军师桌面版（goutoujunshi-desktop）
+# 狗头军师桌面版（DogMaster Desktop）
 
 把两个能力缝成一个程序：
 
